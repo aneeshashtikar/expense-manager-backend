@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,14 +22,15 @@ public class TransactionController {
 
     private final CategoryRepository categoryRepository;
 
-    @GetMapping("/{phoneNumber}")
-    private ExpenseTotal getExpenseReport(@PathVariable("phoneNumber") String phoneNumber) {
-        var expenses = transactionRepository.getExpenses(phoneNumber);
+    @GetMapping("/{phoneNumber}/{timeline}")
+    private ExpenseTotal getExpenseReport(@PathVariable("phoneNumber") String phoneNumber, @PathVariable("timeline") String timeLineType) {
+        var timeLine = getTimeLine(timeLineType);
+        var expenses = transactionRepository.getExpenses(phoneNumber, timeLine.getEnd(), timeLine.getStart());
         var expensesList = new ArrayList<ExpenseResponse>();
         for (Object[] expense : expenses) {
             expensesList.add(new ExpenseResponse((String) expense[0], (Double) expense[1]));
         }
-        var total =  new ExpenseTotal();
+        var total = new ExpenseTotal();
         total.setExpenseResponses(expensesList);
         total.setTotalIncome(transactionRepository.getIncomeTotal(phoneNumber));
         total.setTotalExpenses(expensesList.stream().mapToDouble(ExpenseResponse::getAmount).sum());
@@ -55,5 +58,15 @@ public class TransactionController {
         } catch (Exception e) {
             return LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/M/yyyy"));
         }
+    }
+
+    private Timelines getTimeLine(String type) {
+        Timelines timelines = null;
+        switch (type) {
+            case "daily" -> timelines = new Timelines(LocalDate.now().minus(1, ChronoUnit.DAYS), LocalDate.now());
+            case "monthly" -> timelines = new Timelines(LocalDate.now().minus(30, ChronoUnit.DAYS), LocalDate.now());
+            case "weekly" -> timelines = new Timelines(LocalDate.now().minus(7, ChronoUnit.DAYS), LocalDate.now());
+        }
+        return timelines;
     }
 }
