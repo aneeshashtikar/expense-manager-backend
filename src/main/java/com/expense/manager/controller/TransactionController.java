@@ -32,7 +32,7 @@ public class TransactionController {
         }
         var total = new ExpenseTotal();
         total.setExpenseResponses(expensesList);
-        total.setTotalIncome(transactionRepository.getIncomeTotal(phoneNumber));
+        total.setTotalIncome(transactionRepository.getIncomeTotal(phoneNumber, timeLine.getEnd(), timeLine.getStart()));
         total.setTotalExpenses(expensesList.stream().mapToDouble(ExpenseResponse::getAmount).sum());
         total.setSavings(total.getTotalIncome() - total.getTotalExpenses().longValue());
         return total;
