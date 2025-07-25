@@ -63,9 +63,9 @@ public class TransactionController {
     private Timelines getTimeLine(String type) {
         Timelines timelines = null;
         switch (type) {
-            case "daily" -> timelines = new Timelines(LocalDate.now().minus(1, ChronoUnit.DAYS), LocalDate.now());
+            case "daily" -> timelines = new Timelines(LocalDate.now().minus(0, ChronoUnit.DAYS), LocalDate.now());
             case "monthly" -> timelines = new Timelines(LocalDate.now().minus(30, ChronoUnit.DAYS), LocalDate.now());
-            case "weekly" -> timelines = new Timelines(LocalDate.now().minus(7, ChronoUnit.DAYS), LocalDate.now());
+            case "weekly" -> timelines = new Timelines(LocalDate.now().minus(6, ChronoUnit.DAYS), LocalDate.now());
         }
         return timelines;
     }
